@@ -1,5 +1,11 @@
 void main() {
-  for (var i = 0; i < 10; i++) {
-    print('hello ${i + 1}');
+  final List<String> palavras = ['Bom', 'dia', 'mundo', 'Adoro', 'Dart'];
+  var maiorPalavra = '';
+
+  for (final palavra in palavras) {
+    if (palavra.length > maiorPalavra.length) {
+      maiorPalavra = palavra;
+    }
   }
+  print('A maior palavra é: $maiorPalavra e a lista contém ${palavras.length} palavras.');
 }

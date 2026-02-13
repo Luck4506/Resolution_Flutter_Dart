@@ -1,5 +1,11 @@
-void main() {
-  for (var i = 0; i < 10; i++) {
-    print('hello ${i + 1}');
+int tamanhoOuZero(String? s) {
+  if (s == null) {
+    return 0;
   }
+  return s.length;
+}
+
+void main() {
+  final texto = 'Microeletronica';
+  print(tamanhoOuZero(texto));
 }
