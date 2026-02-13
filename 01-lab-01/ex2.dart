@@ -1,5 +1,8 @@
 void main() {
-  for (var i = 0; i < 10; i++) {
-    print('hello ${i + 1}');
-  }
+  var a = 2;
+  var b = 18;
+
+  var soma = a + b;
+
+  print("A soma de ${a} com ${b} é ${soma}");
 }
