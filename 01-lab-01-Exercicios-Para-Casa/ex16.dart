@@ -1,8 +1,8 @@
-int tamanhoOuZero(String? s) {
-  if (s == null) {
+int tamanhoOuZero(String? texto) {
+  if (texto == null) {
     return 0;
   }
-  return s.length;
+  return texto.length;
 }
 
 void main() {
