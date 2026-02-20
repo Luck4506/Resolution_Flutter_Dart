@@ -1,7 +1,6 @@
-enum StatusPedido { aberto, pago, enviado, entregue }
-//StatusPedido é uma classe que representa os diferentes status de um pedido
-
-//enum é uma forma de definir um conjunto de valores constantes, nesse caso, os status de um pedido.
+enum StatusPedido { aberto, pago, enviado, entregue } 
+// StatusPedido é um enum que representa os possíveis status de um pedido.
+//enum é uma forma de definir um conjunto de valores constantes.
 
 void exibirStatusPedido(StatusPedido status) {
   if (status == StatusPedido.aberto) {
@@ -19,8 +18,8 @@ void exibirStatusPedido(StatusPedido status) {
 }
 
 void main() {
-  exibirStatusPedido(StatusPedido.aberto);
-  exibirStatusPedido(StatusPedido.pago);
-  exibirStatusPedido(StatusPedido.enviado);
-  exibirStatusPedido(StatusPedido.entregue);
+
+  for (final status in StatusPedido.values) {
+    exibirStatusPedido(status);
+  }
 }

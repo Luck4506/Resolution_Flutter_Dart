@@ -27,7 +27,7 @@ void main() {
   Produto produto1 = Produto("PC", 5000.00);
   Produto produto2 = Produto("Teclado", 500.00);
 
-  Carrinho carrinho_de_compras = Carrinho(); //Carrinho_de_compras é uma variável do tipo Carrinho, que é a classe que criamos para representar o carrinho de compras.
+  Carrinho carrinho_de_compras = Carrinho(); //Carrinho_de_compras é uma variável do tipo Carrinho que guarda uma instância (objeto) de Carrinho
   carrinho_de_compras.adicionar(produto1);
   carrinho_de_compras.adicionar(produto2);
 
