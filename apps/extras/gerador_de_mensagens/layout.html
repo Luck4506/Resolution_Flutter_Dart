@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerador de Mensagem</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f6f7f9; margin:0; }
+    header { background:#ffffff; border-bottom:1px solid #ddd; padding:16px; }
+    header h1 { margin:0; font-size:18px; }
+    .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:10px; padding:16px; margin-bottom:16px; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .field { width:100%; }
+    .field.half { flex: 1 1 260px; }
+    label { display:block; font-size:12px; color:#444; margin-bottom:6px; }
+    input, select, textarea {
+      width:100%; padding:10px; border:1px solid #ccc; border-radius:8px;
+      font-size:14px; box-sizing:border-box;
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    .radio-group { display:flex; gap:14px; padding:10px 0; }
+    .radio { display:flex; gap:6px; align-items:center; }
+    .switch { display:flex; gap:10px; align-items:center; padding:10px 0; }
+    .actions { display:flex; gap:12px; flex-wrap:wrap; }
+    button {
+      padding:10px 14px; border-radius:10px; border:1px solid #ccc;
+      background:#fff; cursor:pointer; font-size:14px;
+    }
+    button.primary { background:#2f6fed; color:#fff; border-color:#2f6fed; }
+    .preview-title { margin:0 0 10px; font-size:14px; }
+    .preview-box {
+      border:1px dashed #bbb; border-radius:10px; padding:12px; background:#fafafa;
+      white-space: pre-wrap; font-family: Arial, sans-serif;
+    }
+    .helper { font-size:12px; color:#666; margin-top:6px; }
+  </style>
+</head>
+<body>
+
+  <!-- AppBar -->
+  <header>
+    <h1>Gerador de Mensagem Pronta</h1>
+  </header>
+
+  <main class="container">
+
+    <!-- CARD 1: Formulário -->
+    <section class="card">
+      <div class="row">
+
+        <!-- Tipo de mensagem (Dropdown) -->
+        <div class="field half">
+          <label for="tipo">Tipo de mensagem</label>
+          <select id="tipo" name="tipo">
+            <option value="">Selecione...</option>
+            <option>Pedido de ajuda</option>
+            <option>Aviso de atraso</option>
+            <option>Agradecimento</option>
+            <option>Confirmação de reunião</option>
+          </select>
+        </div>
+
+        <!-- Nome (TextField) -->
+        <div class="field half">
+          <label for="nome">Nome da pessoa</label>
+          <input id="nome" name="nome" placeholder="Ex.: Professor Takeo" />
+        </div>
+
+        <!-- Contexto (TextArea) -->
+        <div class="field">
+          <label for="contexto">Contexto (opcional)</label>
+          <textarea id="contexto" name="contexto" placeholder="Ex.: Sobre o relatório / sobre a reunião / sobre o trabalho..."></textarea>
+          <div class="helper">Dica: mantenha curto (ex.: até 120 caracteres).</div>
+        </div>
+
+        <!-- Tom (Radio) -->
+        <div class="field">
+          <label>Tom</label>
+          <div class="radio-group">
+            <label class="radio">
+              <input type="radio" name="tom" checked />
+              Formal
+            </label>
+            <label class="radio">
+              <input type="radio" name="tom" />
+              Neutro
+            </label>
+            <label class="radio">
+              <input type="radio" name="tom" />
+              Casual
+            </label>
+          </div>
+        </div>
+
+        <!-- Incluir saudação (Switch) -->
+        <div class="field">
+          <label>Opções</label>
+          <div class="switch">
+            <input type="checkbox" id="saudacao" checked />
+            <label for="saudacao">Incluir saudação</label>
+          </div>
+        </div>
+
+        <!-- Botões principais -->
+        <div class="field">
+          <div class="actions">
+            <button class="primary">Gerar mensagem</button>
+            <button>Limpar</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CARD 2: Preview/Resultado -->
+    <section class="card">
+      <h2 class="preview-title">Mensagem gerada</h2>
+      <div class="preview-box">
+Olá, Professor Takeo!
+
+Estou entrando em contato para confirmar nossa reunião. 
+Se possível, poderia me confirmar o horário?
+
+Atenciosamente,
+Lucas
+      </div>
+
+      <!-- Botões do resultado -->
+      <div style="margin-top:12px;" class="actions">
+        <button>Copiar</button>
+        <button>Compartilhar (opcional)</button>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>
