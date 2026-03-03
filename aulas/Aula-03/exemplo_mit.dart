@@ -33,6 +33,16 @@ class Cat extends Animal {
   }
 }
 
+class Horse extends Animal {
+  void show() {
+    print('Pocotó... Pocotó');
+  }
+
+  void relinchar() {
+    print('Relincha... Relinha');
+  }
+}
+
 void main() {
   print('JOGO INICIADO');
 
