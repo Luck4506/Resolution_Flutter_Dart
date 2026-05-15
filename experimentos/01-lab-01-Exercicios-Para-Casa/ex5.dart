@@ -1,6 +1,11 @@
 void main() {
   var n1 = 10;
   var n2 = 9.5;
+
+  if (n1 < 0 || n1 > 10 || n2 < 0 || n2 > 10) {
+    print("Nota inválida, as notas devem ser entre 0 e 10");
+    return;
+  }
   var media = (n1 + n2) / 2;
 
   if (media == 10) {

@@ -6,8 +6,9 @@ void main() {
   var frequencia = <String, int>{};
 
   for (int i = 0; i < tamanho; i++) {
-    if (frequencia.containsKey(texto[i])) {
-      frequencia[texto[i]] = frequencia[texto[i]]! + 1;
+    if (frequencia.containsKey(texto[i])) // se a letra já apareceu antes
+    {
+      frequencia[texto[i]] = frequencia[texto[i]]! + 1; // pega o valor atual e soma 1
       //Precisa do ! que me garante que não é nulo
     } else {
       frequencia[texto[i]] = 1;
