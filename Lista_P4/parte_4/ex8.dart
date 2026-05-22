@@ -1,0 +1,1 @@
+// 8. Crie uma Firebase Function do tipo `onCall` chamada `registrarFeedback`. A função deve receber `nome`, `email` e `mensagem`, validar se os campos obrigatórios foram preenchidos e salvar o feedback em uma coleção chamada `feedbacks` no Firestore.

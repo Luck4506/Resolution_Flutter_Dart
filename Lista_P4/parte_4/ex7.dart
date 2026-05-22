@@ -1,0 +1,1 @@
+// 7. Crie uma Firebase Function do tipo `onRequest` chamada `converterTemperatura`. A função deve receber uma temperatura em Celsius pela query string e retornar a conversão para Fahrenheit e Kelvin.

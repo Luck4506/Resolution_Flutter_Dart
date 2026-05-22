@@ -1,36 +1,21 @@
-// Usado para controlar o cronometro da gravacao.
-// Timer (classe do pacote dart:async)
 import 'dart:async';
-
-// Usado para copiar o arquivo temporario
-// para uma pasta permanente do app.
 import 'dart:io';
 
-// Pacote responsavel por reproduzir
-// arquivos de audio.
 import 'package:audioplayers/audioplayers.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-
-// Pacote que descobre pastas do sistema,
-// como temporaria e documentos do app.
 import 'package:path_provider/path_provider.dart';
-
-// Pacote usado para solicitar permissao de microfone em tempo de execucao.
 import 'package:permission_handler/permission_handler.dart';
-
-// Pacote responsavel por capturar audio do microfone.
 import 'package:record/record.dart';
 
-// Ponto de entrada do aplicativo Flutter.
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   runApp(const GravadorApp());
 }
 
-// Widget raiz do app.
-//
-// Ele configura o MaterialApp, o tema visual e define qual sera a primeira
-// tela exibida ao usuario.
 class GravadorApp extends StatelessWidget {
   const GravadorApp({super.key});
 
@@ -48,12 +33,6 @@ class GravadorApp extends StatelessWidget {
   }
 }
 
-// Tela principal do gravador.
-//
-// Ela precisa ser StatefulWidget
-// porque a interface
-// muda conforme o usuario
-// grava, reproduz, salva ou inicia uma nova gravacao.
 class GravadorPage extends StatefulWidget {
   const GravadorPage({super.key});
 
@@ -62,223 +41,112 @@ class GravadorPage extends StatefulWidget {
 }
 
 class _GravadorPageState extends State<GravadorPage> {
-  // Objeto que conversa com o microfone e cria o arquivo de audio.
   AudioRecorder? _recorder;
-
-  // Objeto que toca o arquivo de audio gravado.
   AudioPlayer? _player;
-
-  // Timer usado para atualizar
-  // o contador de tempo da gravacao na tela.
   Timer? _timer;
-
-  // Caminho do arquivo temporario
-  // gerado ao parar a gravacao.
   String? _recordingPath;
-
-  // Caminho do arquivo salvo de forma permanente na pasta de documentos do app.
   String? _savedPath;
-
-  // Duracao exibida enquanto o usuario esta gravando.
   Duration _recordingDuration = Duration.zero;
-
-  // Controla se o app esta capturando audio neste momento.
   bool _isRecording = false;
-
-  // Controla operacoes assincronas para evitar toques duplicados enquanto o
-  // iOS prepara ou finaliza a sessao de audio.
-  bool _isBusy = false;
-
-  // Controla se o app esta reproduzindo o audio gravado neste momento.
   bool _isPlaying = false;
+  bool _isUploadingBackup = false;
 
   @override
   void dispose() {
-    // Sempre liberamos recursos externos quando a tela sai da memoria.
-    // Isso evita timer rodando em segundo plano e libera microfone/player.
     _timer?.cancel();
     _recorder?.dispose();
     _player?.dispose();
     super.dispose();
   }
 
-  // Inicia uma nova gravacao.
-  //
-  // Fluxo:
-  // 1. pede permissao do microfone;
-  // 2. cria um caminho de arquivo temporario;
-  // 3. inicia o gravador;
-  // 4. liga o cronometro;
-  // 5. atualiza o estado visual da tela.
   Future<void> _startRecording() async {
+    final permission = await Permission.microphone.request();
+
+    if (!permission.isGranted) {
+      _showMessage('Permissao do microfone negada.');
+      return;
+    }
+
+    await _player?.stop();
+
+    final directory = await getTemporaryDirectory();
+    final filePath =
+        '${directory.path}/gravacao_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+    _recorder ??= AudioRecorder();
+
+    await _recorder!.start(
+      const RecordConfig(
+        encoder: AudioEncoder.aacLc,
+        bitRate: 128000,
+        sampleRate: 44100,
+      ),
+      path: filePath,
+    );
+
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _recordingDuration += const Duration(seconds: 1);
+      });
+    });
+
     setState(() {
-      _isBusy = true;
+      _isRecording = true;
       _isPlaying = false;
       _recordingPath = null;
       _savedPath = null;
       _recordingDuration = Duration.zero;
     });
-
-    try {
-      // obtendo permissao do mic.
-      final permission = await Permission.microphone.request();
-
-      if (!permission.isGranted) {
-        _showMessage('Permissao do microfone negada.');
-        return;
-      }
-
-      // Se um audio estiver tocando, paramos antes de gravar outro.
-      await _player?.stop();
-
-      // getTemporaryDirectory cria um local ideal para arquivos que podem ser
-      // substituidos depois, como a gravacao antes de clicar em "Salvar".
-      final directory = await getTemporaryDirectory();
-      final filePath =
-          '${directory.path}/gravacao_${DateTime.now().millisecondsSinceEpoch}.m4a';
-
-      // Criamos o AudioRecorder apenas uma vez
-      // e reaproveitamos nas proximas
-      // gravacoes.
-      // O operador ??= so atribui se ainda estiver nulo.
-      _recorder ??= AudioRecorder();
-
-      final supportsAac = await _recorder!.isEncoderSupported(
-        AudioEncoder.aacLc,
-      );
-
-      if (!supportsAac) {
-        _showMessage('Este dispositivo nao suporta gravacao em AAC.');
-        return;
-      }
-
-      await _recorder!.start(
-        const RecordConfig(
-          // AAC em arquivo .m4a funciona bem em Android e iOS.
-          encoder: AudioEncoder.aacLc,
-          bitRate: 128000,
-          sampleRate: 44100,
-        ),
-        path: filePath,
-      );
-
-      // O pacote grava o audio,
-      // mas o cronometro da tela e responsabilidade do
-      // nosso app. Por isso usamos um Timer separado.
-      _timer?.cancel();
-      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-        setState(() {
-          _recordingDuration += const Duration(seconds: 1);
-        });
-      });
-
-      setState(() => _isRecording = true);
-    } catch (error) {
-      _showMessage('Erro ao iniciar a gravacao: $error');
-    } finally {
-      if (mounted) {
-        setState(() => _isBusy = false);
-      }
-    }
   }
 
-  // Para a gravacao atual.
-  //
-  // O metodo stop() devolve o caminho do arquivo
-  // criado pelo pacote record.
-  // Guardamos esse caminho
-  // em _recordingPath para poder reproduzir ou salvar.
   Future<void> _stopRecording() async {
-    setState(() => _isBusy = true);
+    final path = await _recorder?.stop();
 
-    try {
-      final path = await _recorder?.stop();
+    _timer?.cancel();
 
-      _timer?.cancel();
+    setState(() {
+      _isRecording = false;
+      _recordingPath = path;
+    });
 
-      var validPath = path;
-      if (path != null) {
-        final file = File(path);
-        final exists = await file.exists();
-        final length = exists ? await file.length() : 0;
-
-        if (!exists || length == 0) {
-          validPath = null;
-          _showMessage('A gravacao nao gerou audio. Tente novamente.');
-        }
-      }
-
-      setState(() {
-        _isRecording = false;
-        _recordingPath = validPath;
-      });
-
-      if (validPath != null) {
-        _showMessage('Gravacao pronta para reproduzir.');
-      }
-    } catch (error) {
-      _showMessage('Erro ao parar a gravacao: $error');
-    } finally {
-      if (mounted) {
-        setState(() => _isBusy = false);
-      }
+    if (path != null) {
+      _showMessage('Gravacao pronta para reproduzir.');
     }
   }
 
-  // Reproduz o arquivo gravado.
-  //
-  // DeviceFileSource informa ao audioplayers
-  // que a origem do audio e um
-  // arquivo local do dispositivo,
-  // nao uma URL da internet ou asset do projeto.
   Future<void> _playRecording() async {
     final path = _recordingPath;
-    if (path == null) return;
-
-    try {
-      final file = File(path);
-      if (!await file.exists() || await file.length() == 0) {
-        _showMessage('Arquivo de audio vazio ou inexistente.');
-        return;
-      }
-
-      _player ??= AudioPlayer();
-      await _player!.stop();
-      await _player!.play(
-        DeviceFileSource(path),
-        ctx: AudioContext(
-          iOS: AudioContextIOS(category: AVAudioSessionCategory.playback),
-        ),
-      );
-
-      setState(() => _isPlaying = true);
-
-      // Quando o audio terminar sozinho,
-      // atualizamos a tela para voltar o botao
-      // para o estado "Reproduzir".
-      _player!.onPlayerComplete.first.then((_) {
-        if (mounted) {
-          setState(() => _isPlaying = false);
-        }
-      });
-    } catch (error) {
-      _showMessage('Erro ao reproduzir: $error');
+    if (path == null) {
+      return;
     }
+
+    _player ??= AudioPlayer();
+    await _player!.stop();
+    await _player!.play(DeviceFileSource(path));
+
+    setState(() => _isPlaying = true);
+
+    _player!.onPlayerComplete.first.then((_) {
+      if (mounted) {
+        setState(() => _isPlaying = false);
+      }
+    });
   }
 
-  // Para a reproducao manualmente quando o usuario toca em "Parar reproducao".
   Future<void> _stopPlayback() async {
     await _player?.stop();
     setState(() => _isPlaying = false);
   }
 
-  // Salva a gravacao atual em uma pasta permanente do aplicativo.
-  //
-  // A gravacao nasce na pasta temporaria. Ao salvar, copiamos o arquivo para
-  // getApplicationDocumentsDirectory(), que e uma pasta privada e persistente.
   Future<void> _saveRecording() async {
     final path = _recordingPath;
     if (path == null) return;
+
+    if (_savedPath != null) {
+      _showMessage('Este audio ja foi salvo.');
+      return;
+    }
 
     final directory = await getApplicationDocumentsDirectory();
     final savedFile = File(
@@ -289,12 +157,65 @@ class _GravadorPageState extends State<GravadorPage> {
 
     setState(() => _savedPath = savedFile.path);
     _showMessage('Audio salvo no armazenamento do app.');
+
+    final shouldBackup = await _askBackupConfirmation();
+    if (shouldBackup) {
+      await _backupSavedRecording(savedFile);
+    }
   }
 
-  // Limpa a tela para permitir outra tentativa de gravacao.
-  //
-  // Se o usuario tocar em "Nova gravacao" enquanto ainda esta gravando,
-  // cancelamos a captura atual e descartamos o arquivo parcial.
+  Future<bool> _askBackupConfirmation() async {
+    if (!mounted) return false;
+
+    final answer = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Fazer backup na nuvem?'),
+          content: const Text(
+            'Deseja enviar esta gravacao para o Firebase Storage?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Nao'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Sim'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return answer ?? false;
+  }
+
+  Future<void> _backupSavedRecording(File savedFile) async {
+    setState(() => _isUploadingBackup = true);
+
+    try {
+      final fileName = savedFile.uri.pathSegments.last;
+      final storageRef = FirebaseStorage.instance.ref('audios/$fileName');
+
+      await storageRef.putFile(
+        savedFile,
+        SettableMetadata(contentType: 'audio/mp4'),
+      );
+
+      _showMessage('Backup concluido com sucesso!');
+    } on FirebaseException catch (e) {
+      _showMessage('Erro no backup: ${e.message ?? e.code}');
+    } catch (e) {
+      _showMessage('Erro no backup: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isUploadingBackup = false);
+      }
+    }
+  }
+
   Future<void> _newRecording() async {
     if (_isRecording) {
       await _recorder?.cancel();
@@ -306,15 +227,13 @@ class _GravadorPageState extends State<GravadorPage> {
     setState(() {
       _isRecording = false;
       _isPlaying = false;
+      _isUploadingBackup = false;
       _recordingPath = null;
       _savedPath = null;
       _recordingDuration = Duration.zero;
     });
   }
 
-  // Exibe uma mensagem curta na parte inferior da tela.
-  //
-  // mounted garante que a tela ainda existe antes de usar o context.
   void _showMessage(String message) {
     if (!mounted) return;
 
@@ -323,8 +242,6 @@ class _GravadorPageState extends State<GravadorPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  // Converte Duration para o
-  // formato mm:ss, mais amigavel para exibir na tela.
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
@@ -333,11 +250,8 @@ class _GravadorPageState extends State<GravadorPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Facilita a leitura das condicoes usadas pelos botoes.
     final hasRecording = _recordingPath != null;
-    final canTapRecordingButton = !_isBusy;
-
-    // Pega a paleta de cores do tema configurado no MaterialApp.
+    final hasSavedRecording = _savedPath != null;
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -354,18 +268,13 @@ class _GravadorPageState extends State<GravadorPage> {
             children: [
               const SizedBox(height: 16),
               Icon(
-                // Durante a gravacao mostramos microfone em vermelho. Fora da
-                // gravacao, mostramos um icone de audio na cor principal.
                 _isRecording ? Icons.mic : Icons.graphic_eq,
                 size: 96,
                 color: _isRecording ? colors.error : colors.primary,
               ),
               const SizedBox(height: 16),
               Text(
-                // Texto principal muda conforme o estado atual da tela.
-                _isBusy
-                    ? 'Preparando...'
-                    : _isRecording
+                _isRecording
                     ? 'Gravando...'
                     : hasRecording
                     ? 'Gravacao finalizada'
@@ -375,7 +284,6 @@ class _GravadorPageState extends State<GravadorPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                // O cronometro mostra quanto tempo a gravacao atual durou.
                 _formatDuration(_recordingDuration),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
@@ -385,23 +293,12 @@ class _GravadorPageState extends State<GravadorPage> {
               ),
               const SizedBox(height: 32),
               FilledButton.icon(
-                // O mesmo botao inicia ou para a gravacao, dependendo do estado.
-                onPressed: canTapRecordingButton
-                    ? (_isRecording ? _stopRecording : _startRecording)
-                    : null,
+                onPressed: _isRecording ? _stopRecording : _startRecording,
                 icon: Icon(_isRecording ? Icons.stop : Icons.mic),
-                label: Text(
-                  _isBusy
-                      ? 'Aguarde...'
-                      : _isRecording
-                      ? 'Parar gravacao'
-                      : 'Gravar audio',
-                ),
+                label: Text(_isRecording ? 'Parar gravacao' : 'Gravar audio'),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                // O botao fica desabilitado ate existir uma gravacao.
-                // Depois alterna entre reproduzir e parar a reproducao.
                 onPressed: hasRecording
                     ? (_isPlaying ? _stopPlayback : _playRecording)
                     : null,
@@ -410,15 +307,19 @@ class _GravadorPageState extends State<GravadorPage> {
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                // Salvar so faz sentido depois que existe uma gravacao pronta.
-                onPressed: hasRecording ? _saveRecording : null,
-                icon: const Icon(Icons.save),
-                label: const Text('Salvar'),
+                onPressed:
+                    hasRecording && !hasSavedRecording && !_isUploadingBackup
+                    ? _saveRecording
+                    : null,
+                icon: Icon(
+                  _isUploadingBackup ? Icons.cloud_upload : Icons.save,
+                ),
+                label: Text(
+                  _isUploadingBackup ? 'Enviando backup...' : 'Salvar',
+                ),
               ),
               const SizedBox(height: 12),
               TextButton.icon(
-                // Nova gravacao fica disponivel quando ha algo para limpar ou
-                // quando uma gravacao esta em andamento.
                 onPressed: (_isRecording || hasRecording)
                     ? _newRecording
                     : null,
@@ -427,7 +328,6 @@ class _GravadorPageState extends State<GravadorPage> {
               ),
               const Spacer(),
               if (_savedPath != null)
-                // Mostra para fins didaticos onde o arquivo foi salvo.
                 Text(
                   'Salvo em:\n$_savedPath',
                   textAlign: TextAlign.center,

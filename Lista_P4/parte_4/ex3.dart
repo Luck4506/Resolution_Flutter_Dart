@@ -1,0 +1,1 @@
+// 3. Crie uma Firebase Function do tipo `onRequest` chamada `calcularFrete`. A função deve receber, via query string, os parâmetros `distanciaKm` e `pesoKg`. Com base nesses valores, calcule um valor simples de frete e retorne o resultado em JSON.

@@ -1,0 +1,1 @@
+// 20. Crie um desafio integrador: implemente uma agenda simples em Dart usando classes, listas e funções. A agenda deve permitir cadastrar contatos, listar contatos, buscar por nome e remover um contato. Sem banco de dados, tudo em memória.

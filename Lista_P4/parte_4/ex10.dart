@@ -1,0 +1,1 @@
+// 10. Crie uma Firebase Function do tipo `onCall` chamada `criarPedido`. A função deve receber os dados de um pedido enviado pelo app Flutter, validar se o usuário está autenticado, calcular o valor total com base nos itens recebidos e salvar o pedido em uma coleção chamada `pedidos` no Firestore.

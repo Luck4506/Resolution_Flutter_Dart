@@ -1,0 +1,1 @@
+// 4. Crie uma Firebase Function do tipo `onCall` chamada `validarCupom`. A função deve receber um código de cupom e retornar se ele é válido ou inválido. Considere pelo menos três cupons válidos fixos no código, por exemplo `TPDM10`, `FLUTTER15` e `PUC20`.

@@ -1,0 +1,1 @@
+// 9. Crie uma Firebase Function do tipo `onRequest` chamada `listarProdutosPublicos`. A função deve consultar a coleção `produtos` no Firestore e retornar apenas os produtos marcados com `ativo: true`.

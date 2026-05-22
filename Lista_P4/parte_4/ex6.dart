@@ -1,0 +1,1 @@
+// 6. Crie uma Firebase Function do tipo `onCall` chamada `calcularMediaAluno`. A função deve receber uma lista de notas, validar se a lista não está vazia e retornar a média do aluno junto com a situação: aprovado, recuperação ou reprovado.
