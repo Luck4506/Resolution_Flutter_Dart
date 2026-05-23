@@ -6,4 +6,4 @@
 "O professor nos deu esse exemplo de calculadora muito simples e dart.
 Adapte para mim esse exemplo num app flutter que seja uma calculadora que seja baseada nesse código"
 
-4. - Estudar o código gerado (usando os métodos do professor))
+4. - Estudar o código gerado (usando os métodos do professor)

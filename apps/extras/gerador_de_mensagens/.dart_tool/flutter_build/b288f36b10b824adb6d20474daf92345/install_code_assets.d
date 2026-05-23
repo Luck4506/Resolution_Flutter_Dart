@@ -1,0 +1,1 @@
+ /Users/lucasgoncalves/Documentos/Lucas/Desenvolvimento/Resolution_Flutter_Dart/apps/extras/gerador_de_mensagens/.dart_tool/flutter_build/b288f36b10b824adb6d20474daf92345/native_assets.json: 
