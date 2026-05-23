@@ -31,3 +31,35 @@ print(mse); // 5.666...
 
 Depois, explique em um comentário no código por que elevar o erro ao quadrado evita que erros positivos e negativos se anulem.
 */
+
+import 'dart:math';
+
+double calcularErroMedioQuadratico(
+  List<double> valoresReais,
+  List<double> valoresPrevistos,
+) {
+  if (valoresReais.length != valoresPrevistos.length ||
+      valoresReais.isEmpty ||
+      valoresPrevistos.isEmpty) {
+    throw ArgumentError(
+      'As listas precisam do mesmo tamanho igual e preenchidas',
+    );
+  }
+
+  double MSE = 0;
+
+  for (var i = 0; i < valoresReais.length; i++) {
+    MSE += pow((valoresReais[i] - valoresPrevistos[i]), 2);
+  }
+
+  return MSE / valoresPrevistos.length;
+}
+
+void main(List<String> args) {
+  final valoresReais = [10.0, 20.0, 30.0];
+  final valoresPrevistos = [12.0, 18.0, 33.0];
+
+  final mse = calcularErroMedioQuadratico(valoresReais, valoresPrevistos);
+
+  print(mse); // 5.666...
+}
