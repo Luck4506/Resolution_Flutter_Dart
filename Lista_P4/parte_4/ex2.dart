@@ -1,1 +1,0 @@
-// 2. Crie uma Firebase Function do tipo `onCall` chamada `somarNumeros`. A função deve receber dois números enviados pelo app Flutter, validar se os dois valores foram informados e retornar a soma entre eles.

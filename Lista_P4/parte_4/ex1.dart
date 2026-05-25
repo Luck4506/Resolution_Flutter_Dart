@@ -1,1 +1,0 @@
-// 1. Crie uma Firebase Function do tipo `onRequest` chamada `helloApi`. A função deve responder uma requisição HTTP simples retornando um JSON com a mensagem `"Olá, Firebase Functions!"` e um campo `timestamp` com a data e hora da execução.

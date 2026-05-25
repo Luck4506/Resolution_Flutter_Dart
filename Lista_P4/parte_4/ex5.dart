@@ -1,1 +1,0 @@
-// 5. Crie uma Firebase Function do tipo `onRequest` chamada `statusServidor`. A função deve retornar um JSON informando que o servidor está ativo, qual método HTTP foi usado na requisição e qual foi o horário da chamada.
