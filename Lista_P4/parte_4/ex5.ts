@@ -7,5 +7,5 @@ export const statusServidor = onRequest((req, res) =>{
     const metodo = req.method;
     const horario = new Date().toISOString();
 
-    res.status(200).json({ message: 'O servidor está ativo, pelo método ${metodo} e horário da chamada: ${horario}' });
+    res.status(200).json({ message: 'O servidor está ativo', metodo, horario });
 });

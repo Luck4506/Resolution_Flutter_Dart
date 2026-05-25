@@ -2,7 +2,7 @@
 
 bool todosNumerosPositivos(List<int> lista) {
   for (var numero in lista) {
-    if (numero < 0) {
+    if (numero <= 0) {
       return false;
     }
   }

@@ -14,6 +14,10 @@ List<String> ordenarEmOrdemAlfabeticaComBiblioteca(List<String> listaNomes) {
 
   listaAlfabetica.sort((a, b) => a.compareTo(b));
 
+  //a<b = -1
+  //a==b = 0
+  //a>b = 1
+
   return listaAlfabetica;
 }
 

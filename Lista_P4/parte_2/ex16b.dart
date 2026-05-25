@@ -1,6 +1,10 @@
 // 16.b Crie uma função que receba um número inteiro `n` e retorne uma lista com os `n` primeiros números da sequência de Fibonacci.
 
 List<int> listarSequenciaDeFibonacci(numero) {
+  if (numero <= 0) {
+    throw new ArgumentError('O numero não pode ser 0 ou negativo');
+  }
+
   if (numero == 1) {
     return [1];
   } else if (numero == 2) {
@@ -17,7 +21,7 @@ List<int> listarSequenciaDeFibonacci(numero) {
 }
 
 void main(List<String> args) {
-  int numero = 100;
+  int numero = 10;
 
   print(
     'A lista com os ${numero} primeiros números de Fibonacci é ${listarSequenciaDeFibonacci(numero)}',

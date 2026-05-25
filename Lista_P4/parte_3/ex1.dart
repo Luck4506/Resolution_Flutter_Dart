@@ -21,8 +21,11 @@
 */
 
 int calcularMMC(int n1, int n2) {
+  n1 = n1.abs();
+  n2 = n2.abs();
+
   if (n1 == 0 || n2 == 0) {
-    throw ArgumentError('Os denominadores precisam ser diferente de 0');
+    throw ArgumentError('Os denominadores precisam ser diferentes de 0');
   }
 
   int MDC = calcularMDC(n1, n2);
@@ -33,6 +36,9 @@ int calcularMMC(int n1, int n2) {
 int calcularMDC(int n1, int n2) {
   // Algorítimo de Euclides
   
+  n1 = n1.abs();
+  n2 = n2.abs();
+
   late int divisor;
   late int dividendo;
   if (n1 > n2) {
@@ -54,15 +60,13 @@ int calcularMDC(int n1, int n2) {
   return divisor;
 }
 
-
-
 void main(List<String> args) {
   int n1 = 40;
   int n2 = 24;
 
   print(calcularMMC(n1, n2));
-  print(calcularMMC(2, 3));   // retorna 6
-  print(calcularMMC(4, 6));   // retorna 12
-  print(calcularMMC(8, 12));  // retorna 24
+  print(calcularMMC(2, 3)); // retorna 6
+  print(calcularMMC(4, 6)); // retorna 12
+  print(calcularMMC(8, 12)); // retorna 24
   print(calcularMMC(-5, 10)); // retorna 10
 }

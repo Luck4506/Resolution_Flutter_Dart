@@ -82,6 +82,8 @@ double calcularmoduloVetor(List<double> vetor) {
   }
 
   return sqrt(moduloVetor);
+  
+  
 }
 
 void main(List<String> args) {

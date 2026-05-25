@@ -1,15 +1,19 @@
 // 11. Crie uma função que receba uma lista de produtos representados por mapas e retorne apenas os produtos com preço maior que R$ 100,00.
 
-List<String> encontarprodutosMaior100(Map<String, double> mapCompras) {
-  if (mapCompras.isEmpty) {
-    throw ArgumentError('O mapa precisa estar preechido');
+List<String> encontarprodutosMaior100(
+  List<Map<String, double>> ListamapCompras,
+) {
+  if (ListamapCompras.isEmpty) {
+    throw ArgumentError('A lista precisa estar preechido');
   }
 
   List<String> listaProdutosmaior100 = [];
 
-  for (var compra in mapCompras.entries) {
-    if (compra.value > 100) {
-      listaProdutosmaior100.add(compra.key);
+  for (var mapCompra in ListamapCompras) {
+    for (var compra in mapCompra.entries) {
+      if (compra.value > 100) {
+        listaProdutosmaior100.add(compra.key);
+      }
     }
   }
 
@@ -17,18 +21,15 @@ List<String> encontarprodutosMaior100(Map<String, double> mapCompras) {
 }
 
 void main(List<String> args) {
-  Map<String, double> carrinhoDeCompras = {
-    'Arroz': 12.50,
-    'Feijão': 7.80,
-    'Macarrão': 4.20,
-    'Óleo': 6.30,
-    'Açúcar': 5.10,
-    'Azeite': 124.65,
-    'Caviar': 100.45,
-  };
 
-  !encontarprodutosMaior100(carrinhoDeCompras).isEmpty
+  // Lista de maps conforme solicitado
+  List<Map<String, double>> listaDeCompras = [
+    {'Trufa': 150.00, 'Champanhe': 220.50, 'Pão': 3.20},
+  ];
+
+  !encontarprodutosMaior100(listaDeCompras).isEmpty
       ? print(
-          'Os produtos com valor maior que 100 são: ${encontarprodutosMaior100(carrinhoDeCompras)}')
+          'Os produtos com valor maior que 100 são: ${encontarprodutosMaior100(listaDeCompras)}',
+        )
       : print('Não existe produto na lista com valor maior que 100');
 }
